@@ -34,7 +34,8 @@ export default [
     description:
       " Generate unique and engaging tweet ideas to enhance your twitter game effortlessly",
     icon: "",
-    aiPrompt: "",
+    aiPrompt:
+      "take 2 inputs business and topic and write a tweet, within 20-30 words.Give me result in bullet points",
     slug: "generate-twitter-post-ideas",
     form: [
       {

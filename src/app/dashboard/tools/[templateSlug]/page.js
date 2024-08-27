@@ -2,8 +2,11 @@
 import React, { useEffect, useState } from "react";
 import _ from "lodash";
 
-import { chatSession } from "../../../../../utils/AiModel";
-import Templates from "../../_components/Templates";
+import { chatSession } from "@/utils/AiModel";
+import { db } from "@/utils/db";
+import { AIOutput } from "@/utils/schema";
+
+import Templates from "@/app/dashboard/_components/Templates";
 
 import { Button } from "@/components/ui/button";
 import { ToastAction } from "@/components/ui/toast";
@@ -12,12 +15,19 @@ import { useToast } from "@/components/ui/use-toast";
 import { CircleArrowLeft } from "@/icon";
 import Link from "next/link";
 
+import OutPutEditor from "../../_components/OutPutEditor";
+import { useUser } from "@clerk/nextjs";
+
+import moment from "moment";
+
 function CreateMarketingPlan(props) {
   const { params } = props;
 
   const [formData, setFormData] = useState();
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
   const [isLoading, setLoading] = useState(false);
+  const [aiOutput, setAIOutput] = useState("");
+  const [isOutPut, setIsOutPut] = useState(false);
 
   const { toast } = useToast();
 
@@ -29,6 +39,8 @@ function CreateMarketingPlan(props) {
       action: <ToastAction altText="Try again">Try again</ToastAction>,
     });
   };
+
+  const { user } = useUser();
 
   useEffect(() => {
     let isFormFilled = _.map(
@@ -58,37 +70,63 @@ function CreateMarketingPlan(props) {
     const selectedPrompt = selectedTemplate?.aiPrompt;
 
     const finalAIPrompt = `${JSON.stringify(formData)} ${selectedPrompt}`;
-    setFormData();
+
     try {
       const result = await chatSession.sendMessage(finalAIPrompt);
-      return result.response.text();
+      return result?.response?.text();
     } catch (error) {
       onShowErrorToast();
     }
   };
 
-  const onSubmitHandler = () => {
+  const onSubmitHandler = async () => {
     setLoading(true);
-    genearteAIcontent()
-      .then((aiResponse) => {
+    try {
+      const response = await genearteAIcontent();
+      if (response) {
         setLoading(false);
-        console.log(aiResponse);
-      })
-      .catch(() => onShowErrorToast());
+        setAIOutput(response);
+        setIsOutPut(true);
+
+        await saveInDatabase({
+          formData,
+          templateSlug: selectedTemplate?.slug,
+          aiResponse: response,
+        });
+      }
+    } catch (error) {
+      console.log(error);
+      onShowErrorToast();
+    }
+  };
+
+  const saveInDatabase = async ({ formData, templateSlug, aiResponse }) => {
+    const result = await db.insert(AIOutput).values({
+      formData,
+      aiResponse,
+      templateSlug,
+      createdBy: user?.primaryEmailAddress?.emailAddress,
+      createdAt: moment().format("DD/MM/YYYY"),
+    });
+    console.log(result);
   };
 
   return (
     <div className="w-full p-5">
       <Link
         href={"/dashboard"}
-        className="w-full my-5 flex justify-start items-start gap-1"
+        className="w-full my-5 flex justify-start items-center gap-1"
       >
-        <CircleArrowLeft className="text-primary cursor-pointer" />
-        <span className="text-xl font-semibold">Back</span>
+        <CircleArrowLeft
+          className="text-primary cursor-pointer"
+          width={16}
+          height={16}
+        />
+        <span className="text-base font-semibold">Back</span>
       </Link>
 
-      <div className="w-full flex justify-start items-start gap-5">
-        <div className="p-5 w-3/5 rounded-lg bg-secondary">
+      <div className="w-full flex justify-center items-center">
+        <div className="p-5 w-4/5 rounded-lg bg-secondary">
           <h3 className="text-xl text-primary font-bold">
             {selectedTemplate?.title}
           </h3>
@@ -132,6 +170,11 @@ function CreateMarketingPlan(props) {
             </Button>
           </div>
         </div>
+        <OutPutEditor
+          output={aiOutput}
+          onOpenChange={setIsOutPut}
+          open={isOutPut}
+        />
       </div>
     </div>
   );

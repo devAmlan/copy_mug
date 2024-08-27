@@ -5,6 +5,7 @@ import { nanoid } from "nanoid";
 import { usePathname } from "next/navigation";
 import { Settings, House, History, Receipt } from "@/icon";
 import _ from "lodash";
+import Link from "next/link";
 
 const MenuList = [
   {
@@ -17,19 +18,19 @@ const MenuList = [
     id: nanoid(),
     Icon: History,
     label: "History",
-    pathName: "/history",
+    pathName: "/dashboard/history",
   },
   {
     id: nanoid(),
     Icon: Receipt,
     label: "Billing",
-    pathName: "/billing",
+    pathName: "/dashboard/billing",
   },
   {
     id: nanoid(),
     Icon: Settings,
     label: "Settings",
-    pathName: "/settings",
+    pathName: "/dashboard/settings",
   },
 ];
 
@@ -45,17 +46,18 @@ function SideNav() {
       <div className="w-full flex justify-start items-center gap-2 flex-col mt-10">
         {_.map(MenuList, ({ id, Icon, label, pathName }) => {
           return (
-            <div
+            <Link
+              href={pathName}
               key={id}
               className={`w-full flex justify-start items-start gap-2 p-3 border-0 rounded cursor-pointer ${
-                _.includes(path, pathName)
+                _.isEqual(path, pathName)
                   ? "bg-primary text-white"
                   : "bg-secondary hover:bg-[#ffa55e]"
               }`}
             >
               <Icon className="text-sm" />
               <span className="text-base font-semibold">{label}</span>
-            </div>
+            </Link>
           );
         })}
       </div>

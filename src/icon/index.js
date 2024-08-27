@@ -6,6 +6,7 @@ import {
   Search,
   CircleArrowRight,
   CircleArrowLeft,
+  Copy,
 } from "lucide-react";
 export {
   Settings,
@@ -15,4 +16,5 @@ export {
   Search,
   CircleArrowRight,
   CircleArrowLeft,
+  Copy,
 };
