@@ -21,18 +21,6 @@ const MenuList = [
     label: "History",
     pathName: "/dashboard/history",
   },
-  {
-    id: nanoid(),
-    Icon: Receipt,
-    label: "Billing",
-    pathName: "/dashboard/billing",
-  },
-  {
-    id: nanoid(),
-    Icon: Settings,
-    label: "Settings",
-    pathName: "/dashboard/settings",
-  },
 ];
 
 function SideNav() {
