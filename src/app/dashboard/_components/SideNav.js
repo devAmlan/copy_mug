@@ -4,6 +4,7 @@ import Image from "next/image";
 import { nanoid } from "nanoid";
 import { usePathname } from "next/navigation";
 import { Settings, House, History, Receipt } from "@/icon";
+import UsageTrack from "./UsageTrack";
 import _ from "lodash";
 import Link from "next/link";
 
@@ -38,7 +39,7 @@ function SideNav() {
   const path = usePathname();
 
   return (
-    <div className="w-full h-screen p-5 border-r border-primary">
+    <div className="w-full h-screen p-5 border-r border-primary relative">
       <div className="flex justify-start items-center gap-2 border-b-2 border-primary pb-2">
         <Image src={"./logo.svg"} alt="logo" width={28} height={28} />
         <h2 className="text-xl text-primary font-bold">copy.mug</h2>
@@ -61,6 +62,7 @@ function SideNav() {
           );
         })}
       </div>
+      <UsageTrack />
     </div>
   );
 }

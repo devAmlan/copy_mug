@@ -84,7 +84,6 @@ function CreateMarketingPlan(props) {
     try {
       const response = await genearteAIcontent();
       if (response) {
-        setLoading(false);
         setAIOutput(response);
         setIsOutPut(true);
 
@@ -93,22 +92,29 @@ function CreateMarketingPlan(props) {
           templateSlug: selectedTemplate?.slug,
           aiResponse: response,
         });
+        setFormData();
       }
     } catch (error) {
       console.log(error);
       onShowErrorToast();
+    } finally {
+      setLoading(false);
     }
   };
 
   const saveInDatabase = async ({ formData, templateSlug, aiResponse }) => {
-    const result = await db.insert(AIOutput).values({
-      formData,
-      aiResponse,
-      templateSlug,
-      createdBy: user?.primaryEmailAddress?.emailAddress,
-      createdAt: moment().format("DD/MM/YYYY"),
-    });
-    console.log(result);
+    try {
+      await db.insert(AIOutput).values({
+        formData,
+        aiResponse,
+        templateSlug,
+        createdBy: user?.primaryEmailAddress?.emailAddress,
+        createdAt: moment().format("DD/MM/YYYY"),
+      });
+    } catch (error) {
+      console.log(error);
+      onShowErrorToast();
+    }
   };
 
   return (

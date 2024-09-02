@@ -48,7 +48,7 @@ export default [
       {
         label: "Describe your topic",
         field: "textarea",
-        name: "audience",
+        name: "topic",
         placeholder: "example - Solo founders and indie hackers",
         required: true,
       },
